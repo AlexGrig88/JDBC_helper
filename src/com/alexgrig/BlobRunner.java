@@ -24,7 +24,7 @@ public class BlobRunner {
     private static void saveImage() throws SQLException, IOException {
         var sql = "UPDATE aircraft SET image = ? WHERE id = 1";
 
-        try (var connection = ConnectionManager.open();
+        try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(sql)) {
             byte[] bytesImage = Files.readAllBytes(Path.of("resources", "boing777.jpg"));
             preparedStatement.setBytes(1, bytesImage);
@@ -35,7 +35,7 @@ public class BlobRunner {
     private static void getImage() throws SQLException, IOException {
         var sql = "SELECT image FROM aircraft WHERE id = ?";
 
-        try (var connection = ConnectionManager.open();
+        try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, 1);
             var resultSet = preparedStatement.executeQuery();
