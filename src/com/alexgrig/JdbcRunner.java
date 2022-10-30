@@ -18,6 +18,9 @@ public class JdbcRunner {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+        finally {
+            ConnectionManager.closePool();
+        }
     }
 
 
@@ -29,7 +32,7 @@ public class JdbcRunner {
     private static List<Long> getFlightsBetween(LocalDateTime start, LocalDateTime end) throws SQLException {
         String sql = "SELECT id FROM flight WHERE departure_date BETWEEN ? AND ?";
         List<Long> result = new ArrayList<>();
-        try (var connection = ConnectionManager.open();
+        try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setFetchSize(50);
@@ -54,7 +57,7 @@ public class JdbcRunner {
     private static List<Long> getTicketsByFlightId(Long flightId) throws SQLException {
         String sql = "SELECT id FROM ticket WHERE flight_id = ? ";
         List<Long> result = new ArrayList<>();
-        try (var connection = ConnectionManager.open();
+        try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setLong(1, flightId);
@@ -73,7 +76,7 @@ public class JdbcRunner {
 //        String sqlInsert = "INSERT INTO info (data) VALUES ('test1'), ('test2'), ('test3');";
         String query = "SELECT id, passenger_name FROM ticket;";
 
-        try (Connection connection = ConnectionManager.open();
+        try (Connection connection = ConnectionManager.get();
              Statement statement = connection.createStatement()) {
 
             System.out.println(connection.getTransactionIsolation());
@@ -95,7 +98,7 @@ public class JdbcRunner {
     }
 
     private static void checkMetaData() throws SQLException {
-        try (var connection = ConnectionManager.open()) {
+        try (var connection = ConnectionManager.get()) {
             var metaData = connection.getMetaData();
             var catalogs = metaData.getCatalogs();
             while (catalogs.next()) {
