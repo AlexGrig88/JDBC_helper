@@ -30,6 +30,10 @@ public class JdbcRunner {
         try (var connection = ConnectionManager.open();
              var preparedStatement = connection.prepareStatement(sql)) {
 
+            preparedStatement.setFetchSize(50);
+            preparedStatement.setQueryTimeout(10);
+            preparedStatement.setMaxRows(100);
+
             System.out.println(preparedStatement);
             preparedStatement.setTimestamp(1, Timestamp.valueOf(start));
             System.out.println(preparedStatement);
@@ -85,6 +89,26 @@ public class JdbcRunner {
 
         } catch (SQLException ex) {
             System.out.println(ex);
+        }
+    }
+
+    private static void checkMetaData() throws SQLException {
+        try (var connection = ConnectionManager.open()) {
+            var metaData = connection.getMetaData();
+            var catalogs = metaData.getCatalogs();
+            while (catalogs.next()) {
+                var catalog = catalogs.getString(1);
+                var schemas = metaData.getSchemas();
+                while (schemas.next()) {
+                    var schema = schemas.getString("TABLE_SCHEM");
+                    var tables = metaData.getTables(catalog, schema, "%", new String[] {"TABLE"});
+                    if (schema.equals("public")) {
+                        while (tables.next()) {
+                            System.out.println(tables.getString("TABLE_NAME"));
+                        }
+                    }
+                }
+            }
         }
     }
 }
