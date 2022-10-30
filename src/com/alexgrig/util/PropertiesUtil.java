@@ -1,4 +1,4 @@
-package com.alexgrig;
+package com.alexgrig.util;
 
 import java.io.IOException;
 import java.util.Properties;

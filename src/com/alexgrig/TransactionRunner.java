@@ -1,6 +1,8 @@
 package com.alexgrig;
 
 
+import com.alexgrig.util.ConnectionManager;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -31,6 +33,8 @@ public class TransactionRunner {
             }
             deleteFlightStatement.executeUpdate();
             connection.commit();
+            connection.setAutoCommit(true);
+
         } catch (Exception e) {
             if (connection != null) {
                 connection.rollback();
@@ -70,6 +74,8 @@ public class TransactionRunner {
             var ints = statement.executeBatch();
 
             connection.commit();
+            connection.setAutoCommit(true);
+
         } catch (Exception e) {
             if (connection != null) {
                 connection.rollback();
